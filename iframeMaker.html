@@ -19,7 +19,7 @@
           'position: relative',
           'display: block',
           'width: 100%',
-          'height: ' + Math.min(((heightAt650[device] / deviceWidth[device]) * container.offsetWidth), 650) + 'px',
+          'height: ' + Math.min(((heightAt650[device] / deviceWidth[device]) * container.offsetWidth), heightAt650[device]) + 'px',
           'border: none',
           'overflow: hidden',
           'margin: 32px auto',
@@ -34,7 +34,7 @@
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(function() {
           makeiframe();
-        }, 1000);
+        }, 500);
       };
       makeiframe();
       window.addEventListener('resize', handleResize)
