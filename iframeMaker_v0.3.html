@@ -1,0 +1,47 @@
+<!-- meta tag only for testing -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<!-- begin embed code -->
+<div>
+  <div data-app="container">
+    <iframe id="interactiveiframe"
+      src="http://path/to/interactive" 
+      frameborder="0"
+      scrolling="no"
+      style="position: relative; display: block; width: 100%; height: 50px; border: none; overflow: hidden; margin: 32px auto;"
+    ></iframe>
+  </div>
+  <script>
+    (function(){
+      var deviceWidths = {
+        mobile: 450,
+        desktop: 650,
+      };
+      var deviceHeights = {
+        mobile: 650,
+        desktop: 650,
+      };
+      var container = document.currentScript.parentNode.querySelector('[data-app="container"]');
+      var iframe = container.querySelector('iframe#interactiveiframe');
+      var updateIframe = function() {
+        var device = container.offsetWidth > deviceWidths.mobile ? 'desktop' : 'mobile';
+        var ratio = deviceHeights[device] / deviceWidths[device];
+        iframe.style.width = Math.min(container.offsetWidth, deviceWidths[device]) + 'px';
+        iframe.style.height = Math.min((ratio * container.offsetWidth), deviceHeights[device]) + 'px';
+      };
+      var resizeTimeout = null;
+      var handleResize = function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+          updateIframe();
+        }, 500);
+      };
+      updateIframe();
+      window.addEventListener('resize', handleResize);
+      document.addEventListener('DOMContentLoaded', updateIframe)
+    })();
+  </script>
+</div>
+
+<!-- end embed code -->

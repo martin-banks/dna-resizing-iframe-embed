@@ -6,7 +6,7 @@ These iframes need to display as if the content was a native part of the contain
 Each widget is designed with fixed ratio views for mobile and desktop
 
 ## Solution
-Wrap a simple JS function as part of a HTML embed code that will calculate the appropriate height of the eidget, creat e a new iframe, set it's height and render into a target div.
+Wrap a simple JS function as part of a HTML embed code that will calculate the appropriate height of the widget, create an iframe, set it's height and render into a target div.
 
 Target breakpoints are set for mobile and desktop views and the corresponding heights updated, the default spec was decided as most common by the widget designers.
 
