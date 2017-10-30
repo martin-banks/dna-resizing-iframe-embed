@@ -75,12 +75,13 @@ const styles__handle = {
 
 const styles__previewWrapper = p => ({
   position: 'relative',
-  // display: 'inline-block',
+  display: 'inline-block',
   height: `${p.height}px`,
   width: `${p.width}px`,
   maxWidth: '1000px',
   border: 'solid 1px red',
-  margin: '32px'
+  margin: '32px',
+  verticalAlign: 'top',
 })
 
 const styles__sizeMarker = {
@@ -142,14 +143,18 @@ class App extends Component {
     if (this.state.resizing.active) {
       // console.log(e.pageY, e.mouseY)
       let { axis } = this.state.resizing
-      let newPreview = this.state.preview
+      let update = this.state.preview
       console.log(axis, axis.split(''), axis.split('').pop())
       const direction = axis.slice(-1)
       const device = axis.slice(0, (axis.length - 1))
       console.log({device, direction}, this.state.preview[device], `origin${direction}`)
-      newPreview[device][direction === 'Y' ? 'height' : 'width'] = e[`page${direction}`] - this.state.preview[device][`origin${direction}`] - 10
-      console.log({ newPreview })
-      this.setState({ preview: newPreview })
+      update[device][direction === 'Y' ? 'height' : 'width'] = e[`page${direction}`] - this.state.preview[device][`origin${direction}`] - 10
+      document.querySelectorAll('.preview__wrapper').forEach(wrapper => {
+        update[wrapper.getAttribute('data-view')].originX = wrapper.offsetLeft
+        update[wrapper.getAttribute('data-view')].originY = wrapper.offsetTop
+      })
+      console.log({ update })
+      this.setState({ preview: update })
     }
   }
 
