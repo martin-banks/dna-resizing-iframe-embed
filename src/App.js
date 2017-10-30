@@ -15,8 +15,9 @@ class Preview extends Component {
 
 class Handle extends Component {
   render(props) {
+    const axis = this.props.axis.replace('desktop', '').replace('mobile', '')
     return <div 
-      style={ styles__handle[this.props.axis] }
+      style={ styles__handle[axis] }
       onMouseDown={ this.props.handleMouseDown }
       onMouseMove={ this.props.handleMouseMove }
       onMouseUp={ this.props.handleMouseUp }
@@ -32,10 +33,10 @@ const code = p => `
       src=${p.src} 
       frameborder="0"
       scrolling="no"
-      data-width_mobile="${p.width}"
-      data-height_mobile="${p.height}"
-      data-width_desktop="${p.width}"
-      data-height_desktop="${p.height}"
+      data-width_mobile="${p.mobileWidth}"
+      data-height_mobile="${p.mobileHeight}"
+      data-width_desktop="${p.desktopWidth}"
+      data-height_desktop="${p.desktopHeight}"
     ></iframe>
   </div>
   <script src="https://supportscript.js"></script>
@@ -74,10 +75,12 @@ const styles__handle = {
 
 const styles__previewWrapper = p => ({
   position: 'relative',
+  // display: 'inline-block',
   height: `${p.height}px`,
   width: `${p.width}px`,
   maxWidth: '1000px',
   border: 'solid 1px red',
+  margin: '32px'
 })
 
 const styles__sizeMarker = {
@@ -104,9 +107,18 @@ class App extends Component {
         axis: null,
       },
       preview: {
-        height: 500,
-        width: 500,
-        originY: 0,
+        mobile: {
+          height: 400,
+          width: 300,
+          originY: 0,
+          originX: 0,
+        },
+        desktop: {
+          height: 650,
+          width: 650,
+          originY: 0,
+          originX: 0,
+        },
       }
     }
   }
@@ -126,25 +138,28 @@ class App extends Component {
     this.setState({ resizing: update })
   }
   resize = e => {
+    console.log(this.state)
     if (this.state.resizing.active) {
       // console.log(e.pageY, e.mouseY)
-      const { axis } = this.state.resizing
-      const newPreview = this.state.preview
-      if (axis == 'Y') {
-        newPreview.height = e.pageY - this.state.preview.originY - 10
-      } else {
-        newPreview.width = e.pageX - this.state.preview.originX - 10
-      }
+      let { axis } = this.state.resizing
+      let newPreview = this.state.preview
+      console.log(axis, axis.split(''), axis.split('').pop())
+      const direction = axis.slice(-1)
+      const device = axis.slice(0, (axis.length - 1))
+      console.log({device, direction}, this.state.preview[device], `origin${direction}`)
+      newPreview[device][direction === 'Y' ? 'height' : 'width'] = e[`page${direction}`] - this.state.preview[device][`origin${direction}`] - 10
+      console.log({ newPreview })
       this.setState({ preview: newPreview })
     }
   }
 
   
   componentDidMount = () => {
-    const { offsetTop, offsetLeft } = document.querySelector('.preview__wrapper')
     const previewUpdate = this.state.preview
-    previewUpdate.originY = offsetTop
-    previewUpdate.originX = offsetLeft
+    document.querySelectorAll('.preview__wrapper').forEach(wrapper => {
+      previewUpdate[wrapper.getAttribute('data-view')].originX = wrapper.offsetLeft
+      previewUpdate[wrapper.getAttribute('data-view')].originY = wrapper.offsetTop
+    })
     this.setState({ preview: previewUpdate })
   }
   
@@ -157,17 +172,44 @@ class App extends Component {
           <button onClick={ this.showPreview }>Show me!</button>
         </div>
 
-        <div className="preview__wrapper" style={ styles__previewWrapper({ height: this.state.preview.height, width: this.state.preview.width }) }>
+        {/* mobile preview */}
+        <div 
+          className="preview__wrapper" 
+          data-view="mobile"
+          style={ styles__previewWrapper({ height: this.state.preview.mobile.height, width: this.state.preview.mobile.width }) }
+        >
           { this.state.showPreview ? <Preview src={ this.state.urlInput } /> : <p>Please enter a valid URL</p> }
           
           <div style={{ width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', position: 'absolute', top: '0', left: '0' }}></div>
           
-          <Handle axis="Y" handleMouseDown={this.startResize} handleMouseMove={this.resize} handleMouseUp={this.endResize} />
-          <Handle axis="X" handleMouseDown={this.startResize} handleMouseMove={this.resize} handleMouseUp={this.endResize} />
-          <h4 style={ styles__sizeMarker }>{this.state.preview.width}px / {this.state.preview.height}px</h4>
+          <Handle axis="mobileY" handleMouseDown={this.startResize} handleMouseMove={this.resize} handleMouseUp={this.endResize} />
+          <Handle axis="mobileX" handleMouseDown={this.startResize} handleMouseMove={this.resize} handleMouseUp={this.endResize} />
+          <h4 style={ styles__sizeMarker }>{this.state.preview.mobile.width}px / {this.state.preview.mobile.height}px</h4>
         </div>
 
-        <EmbedCode src={this.state.urlInput} width={this.state.preview.width} height={this.state.preview.height} />
+      {/* desktop preview */}
+        <div 
+          className="preview__wrapper"
+          data-view="desktop"
+          style={ styles__previewWrapper({ height: this.state.preview.desktop.height, width: this.state.preview.desktop.width }) }
+        >
+          { this.state.showPreview ? <Preview src={ this.state.urlInput } /> : <p>Please enter a valid URL</p> }
+          
+          <div style={{ width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', position: 'absolute', top: '0', left: '0' }}></div>
+          
+          <Handle axis="desktopY" handleMouseDown={this.startResize} handleMouseMove={this.resize} handleMouseUp={this.endResize} />
+          <Handle axis="desktopX" handleMouseDown={this.startResize} handleMouseMove={this.resize} handleMouseUp={this.endResize} />
+          <h4 style={ styles__sizeMarker }>{this.state.preview.desktop.width}px / {this.state.preview.desktop.height}px</h4>
+        </div>
+
+
+        <EmbedCode 
+          src={this.state.urlInput} 
+          mobileWidth={this.state.preview.mobile.width} 
+          mobileHeight={this.state.preview.mobile.height} 
+          desktopWidth={this.state.preview.desktop.width} 
+          desktopHeight={this.state.preview.desktop.height} 
+        />
       </div>
     )
   }
