@@ -29,3 +29,46 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.wrapper__header {
+  background: #e2e2e2;
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  text-align: left;
+  padding: 8px 24px;
+}
+.wrapper__header h2 {
+  min-width: 100%;
+  flex: 1
+}
+
+.wrapper__input {
+  position: relative;
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+input {
+  width: 100%;
+  padding: 32px;
+  padding-left: 0;
+  box-sizing: border-box;
+  font-size: 24px;
+  border: none;
+  border-bottom: solid 1px #e2e2e2;
+  flex: 1;
+  background: none;
+}
+
+button {
+  width: 150px;
+  max-width: 200px;
+  padding: 16px;
+  flex: 1;
+  background: #fff;
+  font-size: 20px;
+  margin: 16px;
+  border: solid 1px #ccc;
+  border-radius: 8px
+}

@@ -17,7 +17,7 @@ class Handle extends Component {
   render(props) {
     const axis = this.props.axis.replace('desktop', '').replace('mobile', '')
     return <div 
-      style={ styles__handle[axis] }
+      style={ styles__handle({ cursor: this.props.cursor, dragging: this.props.dragging })[axis] }
       onMouseDown={ this.props.handleMouseDown }
       onMouseMove={ this.props.handleMouseMove }
       onMouseUp={ this.props.handleMouseUp }
@@ -52,26 +52,38 @@ class EmbedCode extends Component {
 }
 
 
-const styles__handle = {
+const styles__handle = p => ({
   X: {
     position: 'absolute',
-    height: '100px',
+    height: '100%',
     width: '20px',
     top: '50%',
     left: '100%',
-    background: '#333',
-    transform: 'translate(0, -50%)',
+    background: `linear-gradient(90deg, rgba(0,0,0,0), #e2e2e2 10%, #fff 20%, #e2e2e2 30%, #fff 40%, #e2e2e2 50%, #fff 60%, #e2e2e2 70%, #fff 80%, #e2e2e2 90%)`,
+    backgroundSize: '12px 50px',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    border: 'solid 1px #e2e2e2',
+    transform: 'translate(4px, -50%)',
+    cursor: p.cursor,
+    borderRadius: '10px',
   },
   Y: {
     position: 'absolute',
-    width: '100px',
+    width: '100%',
     height: '20px',
     top: '100%',
     left: '50%',
-    background: '#333',
-    transform: 'translate(-50%, 0)',
+    background: `linear-gradient(0deg, rgba(0,0,0,0), #e2e2e2 10%, #fff 20%, #e2e2e2 30%, #fff 40%, #e2e2e2 50%, #fff 60%, #e2e2e2 70%, #fff 80%, #e2e2e2 90%)`,
+    backgroundSize: '50px 12px',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    border: 'solid 1px #e2e2e2',
+    transform: 'translate(-50%, 4px)',
+    cursor: p.cursor,
+    borderRadius: '10px',
   },
-}
+})
 
 const styles__previewWrapper = p => ({
   position: 'relative',
@@ -139,21 +151,19 @@ class App extends Component {
     this.setState({ resizing: update })
   }
   resize = e => {
-    console.log(this.state)
     if (this.state.resizing.active) {
-      // console.log(e.pageY, e.mouseY)
       let { axis } = this.state.resizing
       let update = this.state.preview
-      console.log(axis, axis.split(''), axis.split('').pop())
       const direction = axis.slice(-1)
       const device = axis.slice(0, (axis.length - 1))
-      console.log({device, direction}, this.state.preview[device], `origin${direction}`)
-      update[device][direction === 'Y' ? 'height' : 'width'] = e[`page${direction}`] - this.state.preview[device][`origin${direction}`] - 10
+      let newSize = e[`page${direction}`] - this.state.preview[device][`origin${direction}`] - 10
+      if (newSize <= 300) newSize = 300
+      if (newSize >= 1000) newSize = 1000
+      update[device][direction === 'Y' ? 'height' : 'width'] = newSize
       document.querySelectorAll('.preview__wrapper').forEach(wrapper => {
         update[wrapper.getAttribute('data-view')].originX = wrapper.offsetLeft
         update[wrapper.getAttribute('data-view')].originY = wrapper.offsetTop
       })
-      console.log({ update })
       this.setState({ preview: update })
     }
   }
@@ -171,10 +181,12 @@ class App extends Component {
   render() {
     return (
       <div className="App" onMouseMove={ this.resize.bind(this) } onMouseUp={ this.endResize }>
-        <div className="wrapper">
-          <h2>Enter URL to create embed code</h2>
-          <input onChange={ this.updateInput } id="urlInput" placeholder="Enter url"/>
-          <button onClick={ this.showPreview }>Show me!</button>
+        <div className="wrapper__header">
+          <h2>iFrame embed code gnenrator</h2>
+          <div className="wrapper__input">
+            <input onChange={ this.updateInput } id="urlInput" placeholder="Enter url ... "/>
+            <button onClick={ this.showPreview }>Show me!</button>
+          </div>
         </div>
 
         {/* mobile preview */}
@@ -187,9 +199,25 @@ class App extends Component {
           
           <div style={{ width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', position: 'absolute', top: '0', left: '0' }}></div>
           
-          <Handle axis="mobileY" handleMouseDown={this.startResize} handleMouseMove={this.resize} handleMouseUp={this.endResize} />
-          <Handle axis="mobileX" handleMouseDown={this.startResize} handleMouseMove={this.resize} handleMouseUp={this.endResize} />
-          <h4 style={ styles__sizeMarker }>{this.state.preview.mobile.width}px / {this.state.preview.mobile.height}px</h4>
+          <Handle
+            dragging={this.state.resizing.active}
+            axis="mobileY"
+            handleMouseDown={this.startResize}
+            handleMouseMove={this.resize}
+            handleMouseUp={this.endResize}
+            cursor={`-webkit-grab${this.state.resizing.active ? 'bing' : ''}`}
+          />
+          <Handle
+            dragging={this.state.resizing.active}
+            axis="mobileX"
+            handleMouseDown={this.startResize}
+            handleMouseMove={this.resize}
+            handleMouseUp={this.endResize} 
+            cursor={`-webkit-grab${this.state.resizing.active ? 'bing' : ''}`}
+          />
+          <h4 style={ styles__sizeMarker }>
+            {this.state.preview.mobile.width}px / {this.state.preview.mobile.height}px
+          </h4>
         </div>
 
       {/* desktop preview */}
@@ -202,9 +230,25 @@ class App extends Component {
           
           <div style={{ width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', position: 'absolute', top: '0', left: '0' }}></div>
           
-          <Handle axis="desktopY" handleMouseDown={this.startResize} handleMouseMove={this.resize} handleMouseUp={this.endResize} />
-          <Handle axis="desktopX" handleMouseDown={this.startResize} handleMouseMove={this.resize} handleMouseUp={this.endResize} />
-          <h4 style={ styles__sizeMarker }>{this.state.preview.desktop.width}px / {this.state.preview.desktop.height}px</h4>
+          <Handle
+            dragging={this.state.resizing.active}
+            axis="desktopY"
+            handleMouseDown={this.startResize}
+            handleMouseMove={this.resize}
+            handleMouseUp={this.endResize}
+            cursor={`-webkit-grab${this.state.resizing.active ? 'bing' : ''}`}
+          />
+          <Handle
+            dragging={this.state.resizing.active}
+            axis="desktopX"
+            handleMouseDown={this.startResize}
+            handleMouseMove={this.resize}
+            handleMouseUp={this.endResize} 
+            cursor={`-webkit-grab${this.state.resizing.active ? 'bing' : ''}`}
+          />
+          <h4 style={ styles__sizeMarker }>
+            {this.state.preview.desktop.width}px / {this.state.preview.desktop.height}px
+          </h4>
         </div>
 
 
