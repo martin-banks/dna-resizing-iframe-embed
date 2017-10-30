@@ -45,12 +45,28 @@ const code = p => `
 
 class EmbedCode extends Component {
   render(props) {
-    return <pre style={{ textAlign: 'left', padding: '32px', maxWidth: '1000px', margin: '32px auto', border: 'solid 1px #ccc' }}>
+    return <pre style={ styles__embedCode(this.props.display) }>
       {code(this.props)}
     </pre>
   }
 }
 
+const styles__embedCode = display => ({
+  // position: 'fixed',
+  // top: '50%',
+  left: '0',
+  // transform: 'translateY(-50%)',
+  textAlign: 'left',
+  padding: '32px',
+  maxWidth: '1000px',
+  margin: '32px auto',
+  border: 'solid 1px #ccc',
+  display: display,
+  width: '100vw',
+  // height: '100vh',
+  // background: 'lightblue',
+  // zIndex: '1000',
+})
 
 const styles__handle = p => ({
   X: {
@@ -59,11 +75,11 @@ const styles__handle = p => ({
     width: '20px',
     top: '50%',
     left: '100%',
-    background: `linear-gradient(90deg, rgba(0,0,0,0), #e2e2e2 10%, #fff 20%, #e2e2e2 30%, #fff 40%, #e2e2e2 50%, #fff 60%, #e2e2e2 70%, #fff 80%, #e2e2e2 90%)`,
+    background: `linear-gradient(90deg, rgba(0,0,0,0), #bbb 10%, #fff 20%, #bbb 30%, #fff 40%, #bbb 50%, #fff 60%, #bbb 70%, #fff 80%, #bbb 90%)`,
     backgroundSize: '12px 50px',
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'center',
-    border: 'solid 1px #e2e2e2',
+    border: 'solid 1px #ccc',
     transform: 'translate(4px, -50%)',
     cursor: p.cursor,
     borderRadius: '10px',
@@ -74,11 +90,11 @@ const styles__handle = p => ({
     height: '20px',
     top: '100%',
     left: '50%',
-    background: `linear-gradient(0deg, rgba(0,0,0,0), #e2e2e2 10%, #fff 20%, #e2e2e2 30%, #fff 40%, #e2e2e2 50%, #fff 60%, #e2e2e2 70%, #fff 80%, #e2e2e2 90%)`,
+    background: `linear-gradient(0deg, rgba(0,0,0,0), #bbb 10%, #fff 20%, #bbb 30%, #fff 40%, #bbb 50%, #fff 60%, #bbb 70%, #fff 80%, #bbb 90%)`,
     backgroundSize: '50px 12px',
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'center',
-    border: 'solid 1px #e2e2e2',
+    border: 'solid 1px #ccc',
     transform: 'translate(-50%, 4px)',
     cursor: p.cursor,
     borderRadius: '10px',
@@ -114,6 +130,7 @@ class App extends Component {
     super(props)
     this.state = {
       showPreview: false,
+      showCode: false,
       urlInput: false,
       resizing: {
         active: false,
@@ -167,6 +184,7 @@ class App extends Component {
       this.setState({ preview: update })
     }
   }
+  showCode = () => this.setState({ showCode: !this.state.showCode })
 
   
   componentDidMount = () => {
@@ -182,77 +200,81 @@ class App extends Component {
     return (
       <div className="App" onMouseMove={ this.resize.bind(this) } onMouseUp={ this.endResize }>
         <div className="wrapper__header">
-          <h2>iFrame embed code gnenrator</h2>
+          <h2>iFrame embed code generator</h2>
           <div className="wrapper__input">
             <input onChange={ this.updateInput } id="urlInput" placeholder="Enter url ... "/>
-            <button onClick={ this.showPreview }>Show me!</button>
+            <button onClick={ this.showPreview }>Preview</button>
+            <button onClick={ this.showCode }>{ this.state.showCode ? 'Hide embed' : 'Show embed' }</button>
           </div>
         </div>
 
-        {/* mobile preview */}
-        <div 
-          className="preview__wrapper" 
-          data-view="mobile"
-          style={ styles__previewWrapper({ height: this.state.preview.mobile.height, width: this.state.preview.mobile.width }) }
-        >
-          { this.state.showPreview ? <Preview src={ this.state.urlInput } /> : <p>Please enter a valid URL</p> }
-          
-          <div style={{ width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', position: 'absolute', top: '0', left: '0' }}></div>
-          
-          <Handle
-            dragging={this.state.resizing.active}
-            axis="mobileY"
-            handleMouseDown={this.startResize}
-            handleMouseMove={this.resize}
-            handleMouseUp={this.endResize}
-            cursor={`-webkit-grab${this.state.resizing.active ? 'bing' : ''}`}
-          />
-          <Handle
-            dragging={this.state.resizing.active}
-            axis="mobileX"
-            handleMouseDown={this.startResize}
-            handleMouseMove={this.resize}
-            handleMouseUp={this.endResize} 
-            cursor={`-webkit-grab${this.state.resizing.active ? 'bing' : ''}`}
-          />
-          <h4 style={ styles__sizeMarker }>
-            {this.state.preview.mobile.width}px / {this.state.preview.mobile.height}px
-          </h4>
+        <div className="previews">
+          {/* mobile preview */}
+          <div 
+            className="preview__wrapper" 
+            data-view="mobile"
+            style={ styles__previewWrapper({ height: this.state.preview.mobile.height, width: this.state.preview.mobile.width }) }
+          >
+            {/* { this.state.showPreview ? <Preview src={ this.state.urlInput } /> : <p>Please enter a valid URL</p> } */}
+            
+            <div style={{ width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', position: 'absolute', top: '0', left: '0' }}></div>
+            
+            <Handle
+              dragging={this.state.resizing.active}
+              axis="mobileY"
+              handleMouseDown={this.startResize}
+              handleMouseMove={this.resize}
+              handleMouseUp={this.endResize}
+              cursor={`-webkit-grab${this.state.resizing.active ? 'bing' : ''}`}
+            />
+            <Handle
+              dragging={this.state.resizing.active}
+              axis="mobileX"
+              handleMouseDown={this.startResize}
+              handleMouseMove={this.resize}
+              handleMouseUp={this.endResize} 
+              cursor={`-webkit-grab${this.state.resizing.active ? 'bing' : ''}`}
+            />
+            <h4 style={ styles__sizeMarker }>
+              {this.state.preview.mobile.width}px / {this.state.preview.mobile.height}px
+            </h4>
+          </div>
+
+        {/* desktop preview */}
+          <div 
+            className="preview__wrapper"
+            data-view="desktop"
+            style={ styles__previewWrapper({ height: this.state.preview.desktop.height, width: this.state.preview.desktop.width }) }
+          >
+            {/* { this.state.showPreview ? <Preview src={ this.state.urlInput } /> : <p>Please enter a valid URL</p> } */}
+            
+            <div style={{ width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', position: 'absolute', top: '0', left: '0' }}></div>
+            
+            <Handle
+              dragging={this.state.resizing.active}
+              axis="desktopY"
+              handleMouseDown={this.startResize}
+              handleMouseMove={this.resize}
+              handleMouseUp={this.endResize}
+              cursor={`-webkit-${this.state.resizing.active ? 'grabbing' : 'grab'}`}
+            />
+            <Handle
+              dragging={this.state.resizing.active}
+              axis="desktopX"
+              handleMouseDown={this.startResize}
+              handleMouseMove={this.resize}
+              handleMouseUp={this.endResize} 
+              cursor={`-webkit-grab${this.state.resizing.active ? 'grabbing' : 'grab'}`}
+            />
+            <h4 style={ styles__sizeMarker }>
+              {this.state.preview.desktop.width}px / {this.state.preview.desktop.height}px
+            </h4>
+          </div>
         </div>
 
-      {/* desktop preview */}
-        <div 
-          className="preview__wrapper"
-          data-view="desktop"
-          style={ styles__previewWrapper({ height: this.state.preview.desktop.height, width: this.state.preview.desktop.width }) }
-        >
-          { this.state.showPreview ? <Preview src={ this.state.urlInput } /> : <p>Please enter a valid URL</p> }
-          
-          <div style={{ width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', position: 'absolute', top: '0', left: '0' }}></div>
-          
-          <Handle
-            dragging={this.state.resizing.active}
-            axis="desktopY"
-            handleMouseDown={this.startResize}
-            handleMouseMove={this.resize}
-            handleMouseUp={this.endResize}
-            cursor={`-webkit-grab${this.state.resizing.active ? 'bing' : ''}`}
-          />
-          <Handle
-            dragging={this.state.resizing.active}
-            axis="desktopX"
-            handleMouseDown={this.startResize}
-            handleMouseMove={this.resize}
-            handleMouseUp={this.endResize} 
-            cursor={`-webkit-grab${this.state.resizing.active ? 'bing' : ''}`}
-          />
-          <h4 style={ styles__sizeMarker }>
-            {this.state.preview.desktop.width}px / {this.state.preview.desktop.height}px
-          </h4>
-        </div>
 
-
-        <EmbedCode 
+        <EmbedCode
+          display={ this.state.showCode ? 'block' : 'none' }
           src={this.state.urlInput} 
           mobileWidth={this.state.preview.mobile.width} 
           mobileHeight={this.state.preview.mobile.height} 
