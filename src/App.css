@@ -5,31 +5,6 @@
   padding: 0;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
-}
-
-.App-header {
-  background-color: #222;
-  height: 150px;
-  padding: 20px;
-  color: white;
-}
-
-.App-title {
-  font-size: 1.5em;
-}
-
-.App-intro {
-  font-size: large;
-}
-
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
 .wrapper__header {
   background: #333;
   position: relative;
@@ -43,13 +18,13 @@
   min-width: 100%;
   flex: 1
 }
-
 .wrapper__input {
   position: relative;
   display: flex;
   flex-wrap: nowrap;
   width: 100%;
 }
+
 input {
   width: 100%;
   padding: 32px;
@@ -57,7 +32,6 @@ input {
   box-sizing: border-box;
   font-size: 24px;
   border: none;
-  /* border-bottom: solid 1px #e2e2e2; */
   flex: 1;
   background: none;
   color: #fff;

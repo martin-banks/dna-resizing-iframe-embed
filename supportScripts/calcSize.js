@@ -27,7 +27,7 @@
 		iframe.style.width = Math.min(container.offsetWidth, deviceWidths[device]) + 'px';
 		iframe.style.height = Math.min((ratio * container.offsetWidth), deviceHeights[device]) + 'px';
 	};
-	let resizeTimeout = null;
+	var resizeTimeout = null;
 	var handleResize = function () {
 		clearTimeout(resizeTimeout);
 		resizeTimeout = setTimeout(function () {
