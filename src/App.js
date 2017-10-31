@@ -26,22 +26,26 @@ class Handle extends Component {
   }
 }
 
-const code = p => `
-<div>
-  <div data-app="container">
-    <iframe id="interactiveiframe"
-      src=${p.src} 
+// triple undesrscores are used to force spaces where needed
+// this allows for line separated, indeted code to be maintained 
+// here for improved readability
+const sp = '____'
+const forceSpace = new RegExp(sp, 'g')
+const code = p => `<div>
+  <div ${sp} data-app="container">
+    <iframe ${sp} id="interactiveiframe"
+      src="${p.src}"
       frameborder="0"
       scrolling="no"
-      data-width_mobile="${p.mobileWidth}"
-      data-height_mobile="${p.mobileHeight}"
-      data-width_desktop="${p.desktopWidth}"
-      data-height_desktop="${p.desktopHeight}"
+      data-widthmobile="${p.mobileWidth}"
+      data-heightmobile="${p.mobileHeight}"
+      data-widthdesktop="${p.desktopWidth}"
+      data-heightdesktop="${p.desktopHeight}"
     ></iframe>
   </div>
-  <script src="https://supportscript.js"></script>
+  <script ${sp} src="../supportScripts/calcSize.js"></script>
 </div>
-`
+`.replace(/\n|\t|\s+/g, '').replace(forceSpace, ' ')
 
 class EmbedCode extends Component {
   render(props) {
@@ -66,6 +70,8 @@ const styles__embedCode = display => ({
   // height: '100vh',
   // background: 'lightblue',
   // zIndex: '1000',
+  whiteSpace: 'pre-wrap',
+  wordWrap: 'break-word',
 })
 
 const styles__handle = p => ({
@@ -130,7 +136,8 @@ class App extends Component {
     super(props)
     this.state = {
       showPreview: false,
-      showCode: false,
+      showCode: true,
+      warning: false,
       urlInput: false,
       resizing: {
         active: false,
@@ -153,8 +160,17 @@ class App extends Component {
     }
   }
 
-  updateInput = e => this.setState({ urlInput: e.target.value })
-  showPreview = () => this.setState({ showPreview: true })
+  updateInput = e => {
+    this.setState({ urlInput: e.target.value })
+  }
+  showPreview = () => {
+    console.log('preview clicked')
+    this.setState({ showPreview: true })
+    if (!(this.state.urlInput.includes('https'))) {
+      this.setState({ warning: 'WARNING. This is not an HTTPS address, it may not work on our sites'})
+    }
+  }
+  showCode = () => this.setState({ showCode: !this.state.showCode })
 
   startResize = e => {
     const update = this.state.resizing
@@ -184,9 +200,8 @@ class App extends Component {
       this.setState({ preview: update })
     }
   }
-  showCode = () => this.setState({ showCode: !this.state.showCode })
 
-  
+
   componentDidMount = () => {
     const previewUpdate = this.state.preview
     document.querySelectorAll('.preview__wrapper').forEach(wrapper => {
@@ -195,7 +210,7 @@ class App extends Component {
     })
     this.setState({ preview: previewUpdate })
   }
-  
+
   render() {
     return (
       <div className="App" onMouseMove={ this.resize.bind(this) } onMouseUp={ this.endResize }>
@@ -207,15 +222,17 @@ class App extends Component {
             <button onClick={ this.showCode }>{ this.state.showCode ? 'Hide embed' : 'Show embed' }</button>
           </div>
         </div>
+        { this.state.warning ? <h3 style={{ color: 'darkred' }}>{ this.state.warning }</h3> : '' }
 
         <div className="previews">
           {/* mobile preview */}
+          
           <div 
             className="preview__wrapper" 
             data-view="mobile"
             style={ styles__previewWrapper({ height: this.state.preview.mobile.height, width: this.state.preview.mobile.width }) }
           >
-            {/* { this.state.showPreview ? <Preview src={ this.state.urlInput } /> : <p>Please enter a valid URL</p> } */}
+            { this.state.showPreview ? <Preview src={ this.state.urlInput } /> : <h4>Mobile breakpoint</h4>}
             
             <div style={{ width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', position: 'absolute', top: '0', left: '0' }}></div>
             
@@ -241,12 +258,13 @@ class App extends Component {
           </div>
 
         {/* desktop preview */}
+          
           <div 
             className="preview__wrapper"
             data-view="desktop"
             style={ styles__previewWrapper({ height: this.state.preview.desktop.height, width: this.state.preview.desktop.width }) }
           >
-            {/* { this.state.showPreview ? <Preview src={ this.state.urlInput } /> : <p>Please enter a valid URL</p> } */}
+            { this.state.showPreview ? <Preview src={ this.state.urlInput } /> : <h4>Desktop breakpoint</h4>}
             
             <div style={{ width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', position: 'absolute', top: '0', left: '0' }}></div>
             
